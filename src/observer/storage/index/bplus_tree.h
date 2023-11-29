@@ -69,6 +69,9 @@ public:
       case FLOATS: {
         return common::compare_float((void *)v1, (void *)v2);
       }
+      case DATES: {
+        return common::compare_int((void*) v1, (void*) v2);
+      }
       case CHARS: {
         return common::compare_string((void *)v1, attr_length_, (void *)v2, attr_length_);
       }
@@ -135,6 +138,12 @@ public:
       } break;
       case FLOATS: {
         return std::to_string(*(float *)v);
+      }
+      case DATES:{
+        int value = *(int *) v;
+        char buf[20] = {0};
+        ::sprintf(buf, "%04d-%02d-%02d", value / 10000, (value / 10000) % 100, value % 100);
+        return {buf};
       }
       case CHARS: {
         std::string str;

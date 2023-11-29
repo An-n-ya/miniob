@@ -77,7 +77,21 @@ RC insert_record_from_file(
           record_values[i].set_int(int_value);
         }
       }
+        break;
+      case DATES: {
+        deserialize_stream.clear();  // 清理stream的状态，防止多次解析出现异常
+        deserialize_stream.str(file_value);
 
+        int int_value;
+        deserialize_stream >> int_value;
+        if (!deserialize_stream || !deserialize_stream.eof()) {
+          errmsg << "need an integer but got '" << file_values[i] << "' (field index:" << i << ")";
+
+          rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        } else {
+          record_values[i].set_date(int_value);
+        }
+      }
       break;
       case FLOATS: {
         deserialize_stream.clear();

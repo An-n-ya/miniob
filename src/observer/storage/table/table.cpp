@@ -292,7 +292,9 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
         copy_len = data_len + 1;
       }
     }
-    memcpy(record_data + field->offset(), value.data(), copy_len);
+//    LOG_DEBUG("make record: %s, len: %d", value.data(), copy_len);
+    auto data = value.data();
+    memcpy(record_data + field->offset(), data, copy_len);
   }
 
   record.set_data_owner(record_data, record_size);

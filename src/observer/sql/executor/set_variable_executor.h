@@ -64,6 +64,9 @@ private:
       bool_value = var_value.get_boolean();
     } else if (var_value.attr_type() == AttrType::INTS) {
       bool_value = var_value.get_int() != 0;
+    } else if (var_value.attr_type() == AttrType::DATES) {
+      // FIXME: I wonder if this is right. But I cannot find a spec describing this.
+      bool_value = true;
     } else if (var_value.attr_type() == AttrType::FLOATS) {
       bool_value = var_value.get_float() != 0.0;
     } else if (var_value.attr_type() == AttrType::CHARS) {
