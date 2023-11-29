@@ -78,6 +78,7 @@ public:
 
   RC recover_insert_record(Record &record);
 
+  RC destroy(const char*);
   // TODO refactor
   RC create_index(Trx *trx, const FieldMeta *field_meta, const char *index_name);
 

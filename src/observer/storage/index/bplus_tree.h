@@ -246,7 +246,7 @@ struct IndexNode
  * the key is in format: the key value of record and rid.
  * so the key in leaf page must be unique.
  * the value is rid.
- * can you implenment a cluster index ?
+ * can you implement a cluster index ?
  */
 struct LeafIndexNode : public IndexNode
 {

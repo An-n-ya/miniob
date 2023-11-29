@@ -25,4 +25,6 @@ GRTAGS
 GPATH
 GTAGS
 docs/book
+observer.log.*
+miniob/
 #*#
