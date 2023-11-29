@@ -18,7 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include <sstream>
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "dates", "floats", "booleans"};
 
 const char *attr_type_to_string(AttrType type)
 {
@@ -63,6 +63,11 @@ void Value::set_data(char *data, int length)
       num_value_.bool_value_ = *(int *)data != 0;
       length_                = length;
     } break;
+    case DATES: {
+      memcpy(&date_value_, data, sizeof(int));
+//      LOG_DEBUG("set_data [DATES]: data: %s, date_value: %d, length: %d",data, date_value_, length);
+      length_ = length;
+    } break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -99,6 +104,35 @@ void Value::set_string(const char *s, int len /*= 0*/)
   length_ = str_value_.length();
 }
 
+void Value::set_date(int v) {
+  LOG_DEBUG("set_date int version. v=%d", v);
+  attr_type_ = DATES;
+  date_value_ = v;
+  length_ = sizeof(v);
+}
+
+bool check_date(int y, int m, int d) {
+  static int mon[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  bool leap = (y%400==0 || (y%100 && y%4==0));
+  return y > 0
+         && (m > 0)&&(m <= 12)
+         && (d > 0)&&(d <= ((m==2 && leap)?1:0) + mon[m]);
+}
+
+int Value::set_date(const char* s) {
+  attr_type_ = DATES;
+  int y, m, d;
+  std::sscanf(s, "%d-%d-%d", &y, &m, &d);
+
+  LOG_DEBUG("set_date get s=%s y=%d, m=%d, d=%d", s, y, m, d);
+  // TODO: check if the date is valid
+  if (!check_date(y, m, d)) return -1;
+  date_value_ = y * 10000 + m * 100 + d;
+  length_ = sizeof(date_value_);
+  return 0;
+}
+
+
 void Value::set_value(const Value &value)
 {
   switch (value.attr_type_) {
@@ -114,6 +148,9 @@ void Value::set_value(const Value &value)
     case BOOLEANS: {
       set_boolean(value.get_boolean());
     } break;
+    case DATES: {
+      set_date(value.get_date().c_str());
+    }
     case UNDEFINED: {
       ASSERT(false, "got an invalid value type");
     } break;
@@ -125,6 +162,12 @@ const char *Value::data() const
   switch (attr_type_) {
     case CHARS: {
       return str_value_.c_str();
+    } break;
+    case DATES: {
+      char *buf = (char *)malloc(sizeof(int));
+      memcpy(buf, &date_value_, sizeof(int));
+//      LOG_DEBUG("[value] data() DATES: %s", buf);
+      return buf;
     } break;
     default: {
       return (const char *)&num_value_;
@@ -148,6 +191,12 @@ std::string Value::to_string() const
     case CHARS: {
       os << str_value_;
     } break;
+    case DATES: {
+      char* buf = (char*)malloc(20 * sizeof(char));
+      sprintf(buf, "%04d-%02d-%02d", date_value_ / 10000, (date_value_ % 10000) / 100, date_value_ % 100);
+      LOG_DEBUG("value to_string [DATES]: %d", date_value_);
+      os << buf;
+    } break;
     default: {
       LOG_WARN("unsupported attr type: %d", attr_type_);
     } break;
@@ -165,6 +214,9 @@ int Value::compare(const Value &other) const
       case FLOATS: {
         return common::compare_float((void *)&this->num_value_.float_value_, (void *)&other.num_value_.float_value_);
       } break;
+      case DATES: {
+        return common::compare_int((void *)&this->date_value_, (void*)&other.date_value_);
+      }
       case CHARS: {
         return common::compare_string((void *)this->str_value_.c_str(),
             this->str_value_.length(),
@@ -188,7 +240,6 @@ int Value::compare(const Value &other) const
   LOG_WARN("not supported");
   return -1;  // TODO return rc?
 }
-
 int Value::get_int() const
 {
   switch (attr_type_) {
@@ -211,6 +262,23 @@ int Value::get_int() const
     }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
+      return 0;
+    }
+  }
+  return 0;
+}
+
+std::string Value::get_date() const
+{
+  switch (attr_type_) {
+    case CHARS: {
+      return str_value_;
+    }
+    case DATES: {
+      return to_string();
+    }
+    default: {
+      LOG_WARN("invalid transformation from type=%d to type=date", attr_type_);
       return 0;
     }
   }

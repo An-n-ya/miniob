@@ -2,31 +2,9 @@
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
 
-#line 5 "lex_sql.h"
-/*
-这里的代码会被复制到lex_sql.cpp的最开始位置
-定义yy_size_t的原因是因为flex生成的代码，会使用yy_size_t与其他类型的数字
-做比较，导致编译报警
-*/
-#define YY_TYPEDEF_YY_SIZE_T
-typedef int yy_size_t;
+#line 6 "lex_sql.h"
 
-/* 参考生成的lex_sql.cpp代码，这个宏定义会放在每次运行yylex()最开始的地方 */
-#define YY_USER_INIT                                         \
-  yycolumn = 0;
-
-/* 参考生成的lex_sql.cpp代码，这个宏定义会放在解析一个token之后，也可以在网上找到大量的参考资料 */
-/* 我们在这里设置当前解析的token的位置信息，这样在yacc中就可以使用这些信息了 */
-#define YY_USER_ACTION                                       \
-do {                                                         \
-  yylloc->first_line   = yylloc->last_line = yylineno;       \
-  yylloc->first_column = yycolumn;                           \
-  yylloc->last_column  = yylloc->first_column + yyleng - 1;  \
-  yycolumn += yyleng;                                        \
-}                                                            \
-while (0);
-
-#line 29 "lex_sql.h"
+#line 8 "lex_sql.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -97,7 +75,6 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
-typedef uint64_t flex_uint64_t;
 #else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -211,7 +188,7 @@ struct yy_buffer_state
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	yy_size_t yy_n_chars;
+	int yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -255,7 +232,7 @@ void yypop_buffer_state ( yyscan_t yyscanner );
 
 YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size , yyscan_t yyscanner );
 YY_BUFFER_STATE yy_scan_string ( const char *yy_str , yyscan_t yyscanner );
-YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, yy_size_t len , yyscan_t yyscanner );
+YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, int len , yyscan_t yyscanner );
 
 void *yyalloc ( yy_size_t , yyscan_t yyscanner );
 void *yyrealloc ( void *, yy_size_t , yyscan_t yyscanner );
@@ -311,7 +288,7 @@ FILE *yyget_out ( yyscan_t yyscanner );
 
 void yyset_out  ( FILE * _out_str , yyscan_t yyscanner );
 
-			yy_size_t yyget_leng ( yyscan_t yyscanner );
+			int yyget_leng ( yyscan_t yyscanner );
 
 char *yyget_text ( yyscan_t yyscanner );
 
@@ -542,9 +519,9 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 138 "lex_sql.l"
+#line 116 "lex_sql.l"
 
 
-#line 548 "lex_sql.h"
+#line 526 "lex_sql.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */
