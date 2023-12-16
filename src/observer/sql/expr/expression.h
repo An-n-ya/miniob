@@ -20,6 +20,8 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/value.h"
 #include "storage/field/field.h"
 
+using ValuePairs = std::vector<std::pair<std::string, Value>>;
+
 class Tuple;
 
 /**

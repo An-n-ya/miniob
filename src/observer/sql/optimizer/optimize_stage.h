@@ -14,16 +14,23 @@ See the Mulan PSL v2 for more details. */
 
 #pragma once
 
+#include <memory>
+
 #include "common/rc.h"
 #include "sql/operator/logical_operator.h"
 #include "sql/operator/physical_operator.h"
-#include "sql/optimizer/logical_plan_generator.h"
 #include "sql/optimizer/physical_plan_generator.h"
 #include "sql/optimizer/rewriter.h"
+#include "sql/stmt/update_stmt.h"
 
 class SQLStageEvent;
 class LogicalOperator;
 class Stmt;
+class SelectStmt;
+class InsertStmt;
+class DeleteStmt;
+class FilterStmt;
+class ExplainStmt;
 
 /**
  * @brief 将解析后的Statement转换成执行计划，并进行优化
@@ -41,12 +48,18 @@ public:
 private:
   /**
    * @brief 根据SQL生成逻辑计划
-   * @details
-   * 由于SQL语句种类比较多，并且SQL语句可能会有嵌套的情况，比如带有SQL子查询的语句，那就需要递归的创建逻辑计划。
+   * @details 由于SQL语句种类比较多，并且SQL语句可能会有嵌套的情况，比如带有SQL子查询的语句，那就需要递归的创建逻辑计划。
    * @param sql_event   包含SQL信息的事件
    * @param logical_operator  生成的逻辑计划
    */
   RC create_logical_plan(SQLStageEvent *sql_event, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_logical_plan(Stmt *stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_select_logical_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_update_logical_plan(UpdateStmt *update_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_predicate_logical_plan(FilterStmt *filter_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_insert_logical_plan(InsertStmt *insert_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_delete_logical_plan(DeleteStmt *delete_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_explain_logical_plan(ExplainStmt *explain_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
 
   /**
    * @brief 重写逻辑计划
@@ -74,7 +87,6 @@ private:
       std::unique_ptr<LogicalOperator> &logical_operator, std::unique_ptr<PhysicalOperator> &physical_operator);
 
 private:
-  LogicalPlanGenerator  logical_plan_generator_;   ///< 根据SQL生成逻辑计划
-  PhysicalPlanGenerator physical_plan_generator_;  ///< 根据逻辑计划生成物理计划
-  Rewriter              rewriter_;                 ///< 逻辑计划改写
+  PhysicalPlanGenerator physical_plan_generator_; /// 根据逻辑计划生成物理计划
+  Rewriter rewriter_;  /// 逻辑计划改写
 };

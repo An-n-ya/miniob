@@ -118,11 +118,13 @@ union YYSTYPE
   Command *command;
   Condition *condition;
   Value *value;
+  std::pair<std::string, Value> *set;
   enum CompOp comp;
   RelAttr *rel_attr;
   std::vector<AttrInfo> *attr_infos;
   AttrInfo *attr_info;
   std::vector<Value> *value_list;
+  std::vector<std::pair<std::string, Value>> *set_list;
   std::vector<Condition> *condition_list;
   std::vector<RelAttr> *rel_attr_list;
   std::vector<std::string> *relation_list;
@@ -130,7 +132,7 @@ union YYSTYPE
   int number;
   float floats;
 
-#line 134 "yacc_sql.hpp"
+#line 136 "yacc_sql.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -19,9 +19,11 @@ See the Mulan PSL v2 for more details. */
 
 RC DeletePhysicalOperator::open(Trx *trx)
 {
+  LOG_DEBUG("delete physical operator [open] called");
   if (children_.empty()) {
     return RC::SUCCESS;
   }
+  LOG_DEBUG("delete physical operator [open] children is not empty, children[0]=%s", children_[0]->name().c_str());
 
   std::unique_ptr<PhysicalOperator> &child = children_[0];
   RC                                 rc    = child->open(trx);
@@ -41,6 +43,7 @@ RC DeletePhysicalOperator::next()
   if (children_.empty()) {
     return RC::RECORD_EOF;
   }
+  LOG_DEBUG("delete physical operator [next] children is not empty, children[0]=%s", children_[0]->name().c_str());
 
   PhysicalOperator *child = children_[0].get();
   while (RC::SUCCESS == (rc = child->next())) {

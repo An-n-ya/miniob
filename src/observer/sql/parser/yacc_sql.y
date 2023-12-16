@@ -116,6 +116,8 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
   char *                            string;
   int                               number;
   float                             floats;
+  std::pair<std::string, Value>     *set;
+  std::vector<std::pair<std::string, Value>> *set_list;
 }
 
 %token <number> NUMBER
@@ -128,12 +130,14 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %type <number>              type
 %type <condition>           condition
 %type <value>               value
+%type <set>                 set
 %type <number>              number
 %type <comp>                comp_op
 %type <rel_attr>            rel_attr
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
 %type <value_list>          value_list
+%type <set_list>            set_list
 %type <condition_list>      where
 %type <condition_list>      condition_list
 %type <rel_attr_list>       select_attr
@@ -200,7 +204,7 @@ command_wrapper:
   | exit_stmt
     ;
 
-exit_stmt:      
+exit_stmt:
     EXIT {
       (void)yynerrs;  // 这么写为了消除yynerrs未使用的告警。如果你有更好的方法欢迎提PR
       $$ = new ParsedSqlNode(SCF_EXIT);
@@ -400,18 +404,41 @@ delete_stmt:    /*  delete 语句的语法解析树*/
     }
     ;
 update_stmt:      /*  update 语句的语法解析树*/
-    UPDATE ID SET ID EQ value where 
+    UPDATE ID SET set set_list where
     {
       $$ = new ParsedSqlNode(SCF_UPDATE);
       $$->update.relation_name = $2;
-      $$->update.attribute_name = $4;
-      $$->update.value = *$6;
-      if ($7 != nullptr) {
-        $$->update.conditions.swap(*$7);
-        delete $7;
+      if ($5 != nullptr) {
+        $$->update.values.swap(*$5);
+      }
+      $$->update.values.emplace_back(*$4);
+      std::reverse($$->update.values.begin(), $$->update.values.end());
+      delete $4;
+      if ($6 != nullptr) {
+        $$->update.conditions.swap(*$6);
+        delete $6;
       }
       free($2);
-      free($4);
+    }
+    ;
+set_list:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | COMMA set set_list {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<std::pair<std::string, Value>>;
+      }
+      $$->emplace_back(*$2);
+      delete $2;
+    }
+    ;
+set:
+    ID EQ value {
+      $$ = new std::pair<std::string, Value>($1, *$3);
     }
     ;
 select_stmt:        /*  select 语句的语法解析树*/

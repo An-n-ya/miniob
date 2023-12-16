@@ -118,6 +118,31 @@ MvccTrx::MvccTrx(MvccTrxKit &kit, int32_t trx_id) : trx_kit_(kit), trx_id_(trx_i
 
 MvccTrx::~MvccTrx() {}
 
+RC MvccTrx::update_record(Table *table, Record &target_record, Record &record)
+{
+
+  Field begin_field;
+  Field end_field;
+  trx_fields(table, begin_field, end_field);
+
+  begin_field.set_int(target_record, -trx_id_);
+  end_field.set_int(target_record, trx_kit_.max_trx_id());
+
+  RC rc = table->update_record(target_record, record);
+  if (rc != RC::SUCCESS) {
+    LOG_WARN("failed to update record into table. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  rc = log_manager_->append_log(CLogType::UPDATE, trx_id_, table->table_id(), record.rid(), record.len(), 0/*offset*/, record.data());
+  ASSERT(rc == RC::SUCCESS, "failed to append update record log. trx id=%d, table id=%d, rid=%s, record len=%d, rc=%s",
+         trx_id_, table->table_id(), record.rid().to_string().c_str(), record.len(), strrc(rc));
+
+
+  operations_.insert(Operation(Operation::Type::UPDATE, table, record.rid()));
+  return rc;
+}
+
 RC MvccTrx::insert_record(Table *table, Record &record)
 {
   Field begin_field;
@@ -270,8 +295,9 @@ RC MvccTrx::commit_with_trx_id(int32_t commit_xid)
 
   for (const Operation &operation : operations_) {
     switch (operation.type()) {
-      case Operation::Type::INSERT: {
-        RID    rid(operation.page_num(), operation.slot_num());
+      case Operation::Type::INSERT:
+      case Operation::Type::UPDATE: {
+        RID rid(operation.page_num(), operation.slot_num());
         Table *table = operation.table();
         Field  begin_xid_field, end_xid_field;
         trx_fields(table, begin_xid_field, end_xid_field);
@@ -334,6 +360,7 @@ RC MvccTrx::rollback()
 
   for (const Operation &operation : operations_) {
     switch (operation.type()) {
+      // TODO: Operation::Type::UPDATE:
       case Operation::Type::INSERT: {
         RID    rid(operation.page_num(), operation.slot_num());
         Record record;
@@ -416,6 +443,7 @@ RC MvccTrx::redo(Db *db, const CLogRecord &log_record)
   }
 
   switch (log_record.log_type()) {
+      //TODO: CLogType::UPDATE
     case CLogType::INSERT: {
       const CLogRecordData &data_record = log_record.data_record();
       Record                record;

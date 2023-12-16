@@ -133,7 +133,19 @@ const FieldMeta *TableMeta::find_field_by_offset(int offset) const
   }
   return nullptr;
 }
-int TableMeta::field_num() const { return fields_.size(); }
+const FieldMeta *TableMeta::find_field_by_name(const char *name) const
+{
+  for (const FieldMeta &field : fields_) {
+    if (std::strcmp(field.name(), name) == 0) {
+      return &field;
+    }
+  }
+  return nullptr;
+}
+int TableMeta::field_num() const
+{
+  return fields_.size();
+}
 
 int TableMeta::sys_field_num() const
 {
