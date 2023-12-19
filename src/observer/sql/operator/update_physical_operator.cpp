@@ -46,17 +46,24 @@ RC UpdatePhysicalOperator::open(Trx *trx)
 RC UpdatePhysicalOperator::make_record(RowTuple *tuple, Record &record)
 {
   auto field_metas = *table_->table_meta().field_metas();
+  const int normal_field_start_index = table_->table_meta().sys_field_num();
   auto table_name = table_->name();
-  auto field_num = field_metas.size();
-  auto values = std::vector<Value>(field_num);
+  LOG_DEBUG("normal field index:%d, total field size=%d", normal_field_start_index, field_metas.size());
+//  auto field_num = field_metas.size();
+  auto values = std::vector<Value>();
   int idx = 0;
   RC rc;
   for (auto field_meta : field_metas) {
+    if (idx < normal_field_start_index) {
+      idx++;
+      continue;
+    }
     auto field_name = field_meta.name();
     bool found_field = false;
     for (long unsigned int i = 0; i < attributes_.size(); i++) {
-      if (attributes_[i].compare(field_name)) {
-        values[idx++] = values_[i];
+      if (attributes_[i].compare(field_name) == 0) {
+        values.push_back(values_[i]);
+        idx++;
         found_field = true;
         break;
       }
@@ -70,10 +77,11 @@ RC UpdatePhysicalOperator::make_record(RowTuple *tuple, Record &record)
       LOG_WARN("cannot find corresponding cell given the field name=%s", field_name);
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
-    values[idx++] = value;
+    values.push_back(value);
+    idx++;
   }
 
-  rc = table_->make_record(field_num, values.data(), record);
+  rc = table_->make_record(values.size(), values.data(), record);
   return rc;
 }
 
@@ -99,7 +107,7 @@ RC UpdatePhysicalOperator::next()
     Record &target_record = row_tuple->record();
 
     Record record;
-    make_record(row_tuple, record);
+    rc = make_record(row_tuple, record);
 //    rc = table_->make_record(static_cast<int>(values_.size()), values_.data(), record);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to make record. rc=%s", strrc(rc));

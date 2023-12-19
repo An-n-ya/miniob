@@ -226,6 +226,7 @@ RC PhysicalPlanGenerator::create_plan(UpdateLogicalOperator &update_oper, unique
   for (auto pair : update_oper.values()) {
     values.push_back(pair.second);
     attributes.push_back(pair.first);
+//    LOG_DEBUG("[create_physical_plan] attributes:%s, values:%s", pair.first.c_str(), pair.second.to_string().c_str());
   }
 
   vector<unique_ptr<LogicalOperator>> &child_opers = update_oper.children();

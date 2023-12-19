@@ -262,6 +262,7 @@ const TableMeta &Table::table_meta() const { return table_meta_; }
 RC Table::make_record(int value_num, const Value *values, Record &record)
 {
   // 检查字段类型是否一致
+  LOG_DEBUG("[make_record] value_num:%d, sys_field_num:%d, total_field_num:%d", value_num, table_meta_.sys_field_num(), table_meta_.field_num());
   if (value_num + table_meta_.sys_field_num() != table_meta_.field_num()) {
     LOG_WARN("Input values don't match the table's schema, table name:%s", table_meta_.name());
     return RC::SCHEMA_FIELD_MISSING;
@@ -292,7 +293,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
         copy_len = data_len + 1;
       }
     }
-//    LOG_DEBUG("make record: %s, len: %d", value.data(), copy_len);
+//    LOG_DEBUG("make record: field=%s value=%s, len: %d",field->name(), value.to_string().c_str(), copy_len);
     auto data = value.data();
     memcpy(record_data + field->offset(), data, copy_len);
   }
