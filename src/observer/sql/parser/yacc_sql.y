@@ -441,7 +441,7 @@ set:
       $$ = new std::pair<std::string, Value>($1, *$3);
     }
     ;
-select_stmt:        /*  select 语句的语法解析树*/
+select_stmt:        /*  select 语句的语法解析树 TODO inner join && outer join*/
     SELECT select_attr FROM ID rel_list where
     {
       $$ = new ParsedSqlNode(SCF_SELECT);

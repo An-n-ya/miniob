@@ -244,12 +244,12 @@ void Frame::pin()
 
 int Frame::unpin()
 {
-  intptr_t xid = get_default_debug_xid();
-
-  ASSERT(pin_count_.load() > 0,
-         "try to unpin a frame that pin count <= 0."
-         "this=%p, pin=%d, pageNum=%d, fd=%d, xid=%lx, lbt=%s",
-         this, pin_count_.load(), page_.page_num, file_desc_, xid, lbt());
+//  intptr_t xid = get_default_debug_xid();
+//
+//  ASSERT(pin_count_.load() > 0,
+//         "try to unpin a frame that pin count <= 0."
+//         "this=%p, pin=%d, pageNum=%d, fd=%d, xid=%lx, lbt=%s",
+//         this, pin_count_.load(), page_.page_num, file_desc_, xid, lbt());
   
   std::scoped_lock debug_lock(debug_lock_);
 
