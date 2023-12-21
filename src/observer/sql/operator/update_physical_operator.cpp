@@ -114,6 +114,8 @@ RC UpdatePhysicalOperator::next()
       return rc;
     }
 
+    LOG_DEBUG("target record:%d, record: %d", target_record.len(), record.len());
+    LOG_DEBUG("target id=%d, record id=%d", target_record.rid(), record.rid());
     rc = trx_->update_record(table_, target_record, record);
     LOG_DEBUG("update record returned!");
     if (rc != RC::SUCCESS) {

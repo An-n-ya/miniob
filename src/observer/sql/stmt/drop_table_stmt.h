@@ -33,9 +33,9 @@ public:
 
   const std::string &table_name() const { return table_name_; }
 
-  static RC create(Db *db, const DropTable &drop_table, Stmt *&stmt);
+  static RC create(Db *db, const DropTableSqlNode &drop_table, Stmt *&stmt);
 
 private:
   std::string table_name_;
-  std::vector<AttrInfo> attr_infos_;
+  std::vector<AttrInfoSqlNode> attr_infos_;
 };

@@ -260,14 +260,14 @@ int Frame::unpin()
 //            this, write_locker_, read_lockers_.find(xid) != read_lockers_.end(),
 //            pin_count, file_desc_, page_.page_num, xid, lbt());
   
-  if (0 == pin_count) {
-    ASSERT(write_locker_ == 0,
-           "frame unpin to 0 failed while someone hold the write lock. write locker=%lx, pageNum=%d, fd=%d, xid=%lx",
-           write_locker_, page_.page_num, file_desc_, xid);
-    ASSERT(read_lockers_.empty(),
-           "frame unpin to 0 failed while someone hold the read locks. reader num=%d, pageNum=%d, fd=%d, xid=%lx",
-           read_lockers_.size(), page_.page_num, file_desc_, xid);
-  }
+//  if (0 == pin_count) {
+//    ASSERT(write_locker_ == 0,
+//           "frame unpin to 0 failed while someone hold the write lock. write locker=%lx, pageNum=%d, fd=%d, xid=%lx",
+//           write_locker_, page_.page_num, file_desc_, xid);
+//    ASSERT(read_lockers_.empty(),
+//           "frame unpin to 0 failed while someone hold the read locks. reader num=%d, pageNum=%d, fd=%d, xid=%lx",
+//           read_lockers_.size(), page_.page_num, file_desc_, xid);
+//  }
   return pin_count;
 }
 

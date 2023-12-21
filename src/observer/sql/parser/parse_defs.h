@@ -133,7 +133,7 @@ struct UpdateSqlNode
 {
   std::string relation_name;   ///< Relation to update
   std::vector<std::pair<std::string, Value>>           values;
-  std::vector<Condition> conditions;
+  std::vector<ConditionSqlNode> conditions;
 };
 
 /**

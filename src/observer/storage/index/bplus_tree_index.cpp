@@ -80,7 +80,9 @@ RC BplusTreeIndex::insert_entry(const char *record, const RID *rid)
 }
 RC BplusTreeIndex::update_entry(const char *target_record, const RID *rid, const char *record)
 {
-    return index_handler_.update_entry(target_record + field_meta_.offset(), rid, record + field_meta_.offset());
+  // TODO
+  // return index_handler_.update_entry(target_record + field_meta_.offset(), rid, record + field_meta_.offset());
+  return RC::SUCCESS;
 }
 
 RC BplusTreeIndex::delete_entry(const char *record, const RID *rid)

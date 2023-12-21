@@ -34,7 +34,7 @@ public:
       int value_amount);
 
 public:
-  static RC create(Db *db, const UpdatesSqlNode &update_sql, Stmt *&stmt);
+  static RC create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt);
   StmtType type() const override
   {
     return StmtType::UPDATE;

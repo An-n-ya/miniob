@@ -490,6 +490,7 @@ RC Table::update_record(const Record &target_record, Record &record)
   rc = record_handler_->delete_record(&target_record.rid());
   ASSERT(RC::SUCCESS == rc,
       "failed to delete entry");
+  LOG_DEBUG("target id=%d, record id=%d", target_record.rid(), record.rid());
   rc = record_handler_->insert_record(record.data(), table_meta_.record_size(), &record.rid());
   return rc;
 }
